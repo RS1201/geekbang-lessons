@@ -2,6 +2,10 @@ package org.geektimes.projects.user.sql;
 
 import org.geektimes.projects.user.domain.User;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -21,6 +25,19 @@ public class DBConnectionManager {
     }
 
     public Connection getConnection() {
+        try {
+            if(connection != null){
+                return connection;
+            }
+            Context ic = new InitialContext();
+            DataSource source = (DataSource)ic.lookup("java:comp/env/jdbc/UserPlatformDB");
+            connection = source.getConnection();
+        } catch (NamingException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return this.connection;
     }
 
@@ -60,15 +77,15 @@ public class DBConnectionManager {
 //        Driver driver = DriverManager.getDriver("jdbc:derby:/db/user-platform;create=true");
 //        Connection connection = driver.connect("jdbc:derby:/db/user-platform;create=true", new Properties());
 
-        String databaseURL = "jdbc:derby:/db/user-platform;create=true";
+        String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
         Connection connection = DriverManager.getConnection(databaseURL);
 
         Statement statement = connection.createStatement();
         // 删除 users 表
-        System.out.println(statement.execute(DROP_USERS_TABLE_DDL_SQL)); // false
+//        System.out.println(statement.execute(DROP_USERS_TABLE_DDL_SQL)); // false
         // 创建 users 表
-        System.out.println(statement.execute(CREATE_USERS_TABLE_DDL_SQL)); // false
-        System.out.println(statement.executeUpdate(INSERT_USER_DML_SQL));  // 5
+//        System.out.println(statement.execute(CREATE_USERS_TABLE_DDL_SQL)); // false
+//        System.out.println(statement.executeUpdate(INSERT_USER_DML_SQL));  // 5
 
         // 执行查询语句（DML）
         ResultSet resultSet = statement.executeQuery("SELECT id,name,password,email,phoneNumber FROM users");

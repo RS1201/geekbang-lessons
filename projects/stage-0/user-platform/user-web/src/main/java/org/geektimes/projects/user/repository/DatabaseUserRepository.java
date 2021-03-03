@@ -4,6 +4,10 @@ import org.geektimes.function.ThrowableFunction;
 import org.geektimes.projects.user.domain.User;
 import org.geektimes.projects.user.sql.DBConnectionManager;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -31,19 +35,77 @@ public class DatabaseUserRepository implements UserRepository {
 
     public static final String QUERY_ALL_USERS_DML_SQL = "SELECT id,name,password,email,phoneNumber FROM users";
 
-    private final DBConnectionManager dbConnectionManager;
+    private DBConnectionManager dbConnectionManager;
 
     public DatabaseUserRepository(DBConnectionManager dbConnectionManager) {
         this.dbConnectionManager = dbConnectionManager;
     }
 
+    public DatabaseUserRepository() {
+    }
+
     private Connection getConnection() {
-        return dbConnectionManager.getConnection();
+        Context ctx = null;
+        try {
+//            ctx = new InitialContext();
+//            Context envCtx = (Context) ctx.lookup("java:comp/env");
+//            DataSource ds = (DataSource) envCtx.lookup("jdbc/UserPlatformDB");
+//            return ds.getConnection();
+
+            String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
+            Connection connection = DriverManager.getConnection(databaseURL);
+
+            return connection;
+        } catch ( SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
     }
 
     @Override
     public boolean save(User user) {
-        return false;
+//        return executeQuery(INSERT_USER_DML_SQL,resultSet -> {
+//            return true;
+//        },COMMON_EXCEPTION_HANDLER,user.getName(),user.getPassword(),user.getEmail(),user.getPhoneNumber());
+
+//        "('A','******','a@gmail.com','1') , "
+
+        String sql = "INSERT INTO users(name,password,email,phoneNumber) VALUES ("
+                + user.getName() + ","
+                + user.getPassword() + ","
+                + user.getEmail() + ","
+                + user.getPhoneNumber()  +
+                ")";
+
+
+        String sqlInsert = "INSERT INTO users(name,password,email,phoneNumber) VALUES ('%s','%s','%s','%s')";
+        sqlInsert = String.format(sqlInsert,user.getName(),user.getPassword(),user.getEmail(),user.getPhoneNumber());
+
+        System.out.println(sqlInsert);
+
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("INSERT INTO users(name,password,email,phoneNumber) VALUES ('");
+        stringBuffer.append(user.getName() + "','");
+        stringBuffer.append(user.getPassword() + "','");
+        stringBuffer.append(user.getEmail() + "','");
+        stringBuffer.append(user.getPhoneNumber() + "')");
+
+
+
+
+        String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(databaseURL);
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(stringBuffer.toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 
     @Override

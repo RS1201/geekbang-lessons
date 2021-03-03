@@ -18,22 +18,46 @@
       }
     </style>
 </head>
+<script>
+
+</script>
 <body>
 	<div class="container">
-		<form class="form-signin">
+		<form class="form-signin" action="/register/add" method="post">
 			<h1 class="h3 mb-3 font-weight-normal">登录</h1>
-			<label for="inputEmail" class="sr-only">请输出电子邮件</label> <input
-				type="email" id="inputEmail" class="form-control"
-				placeholder="请输入电子邮件" required autofocus> <label
-				for="inputPassword" class="sr-only">Password</label> <input
-				type="password" id="inputPassword" class="form-control"
+
+			<label
+					for="name" class="sr-only">请输入用户名</label>
+			<input
+					type="password" id="name" class="form-control" name="name"
+					placeholder="请输入用户名" required>
+
+			<label
+					for="phoneNum" class="sr-only">请输入手机号</label>
+			<input
+					type="password" id="phoneNum" class="form-control" name="phoneNum"
+					placeholder="请输入手机号" required>
+
+
+
+			<label for="inputEmail" class="sr-only">请输出电子邮件</label>
+			<input
+				type="email" id="inputEmail" class="form-control" name="inputEmail"
+				placeholder="请输入电子邮件" required autofocus>
+
+			<label
+				for="inputPassword" class="sr-only">Password</label>
+			<input
+				type="password" id="inputPassword" class="form-control" name="inputPassword"
 				placeholder="请输入密码" required>
+
+
 			<div class="checkbox mb-3">
 				<label> <input type="checkbox" value="remember-me">
 					Remember me
 				</label>
 			</div>
-			<button class="btn btn-lg btn-primary btn-block" type="submit">Sign
+			<button class="btn btn-lg btn-primary btn-block" type="submit" >Sign
 				in</button>
 			<p class="mt-5 mb-3 text-muted">&copy; 2017-2021</p>
 		</form>
