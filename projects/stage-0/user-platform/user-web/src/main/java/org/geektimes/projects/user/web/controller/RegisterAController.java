@@ -10,8 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-//@Path("/hello")
-@Path("/register") //
+@Path("/register")
 public class RegisterAController implements PageController {
 
 
@@ -33,17 +32,9 @@ public class RegisterAController implements PageController {
         user.setEmail(inputEmail);
         user.setPhoneNumber(phoneNum);
 
-
-
         DatabaseUserService databaseUserService = new DatabaseUserService();
         boolean flag = databaseUserService.register(user);
 
-//        if(flag){
-//            response.sendRedirect("forward/success.jsp");
-//        }
-
-
         return "success.jsp";
     }
-
 }

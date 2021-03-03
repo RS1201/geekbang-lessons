@@ -62,6 +62,9 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <contextFile>src/main/webapp/WEB-INF/context.xml</contextFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>

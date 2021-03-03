@@ -21,19 +21,30 @@ import java.util.logging.Logger;
 import static org.apache.commons.lang.ClassUtils.wrapperToPrimitive;
 
 public class DatabaseUserRepository implements UserRepository {
-
+    public static final String INSERT_USER_DML_SQL =
+            "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
+                    "(?,?,?,?)";
+    public static final String QUERY_ALL_USERS_DML_SQL =
+            "SELECT id,name,password,email,phoneNumber FROM users";
+    /**
+     * 数据类型与 ResultSet 方法名映射
+     */
+    static Map<Class, String> resultSetMethodMappings = new HashMap<>();
+    static Map<Class, String> preparedStatementMethodMappings = new HashMap<>();
     private static Logger logger = Logger.getLogger(DatabaseUserRepository.class.getName());
-
     /**
      * 通用处理方式
      */
     private static Consumer<Throwable> COMMON_EXCEPTION_HANDLER = e -> logger.log(Level.SEVERE, e.getMessage());
 
-    public static final String INSERT_USER_DML_SQL =
-            "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
-                    "(?,?,?,?)";
+    static {
+        resultSetMethodMappings.put(Long.class, "getLong");
+        resultSetMethodMappings.put(String.class, "getString");
 
-    public static final String QUERY_ALL_USERS_DML_SQL = "SELECT id,name,password,email,phoneNumber FROM users";
+        // long
+        preparedStatementMethodMappings.put(Long.class, "setLong");
+        preparedStatementMethodMappings.put(String.class, "setString");
+    }
 
     private DBConnectionManager dbConnectionManager;
 
@@ -42,6 +53,10 @@ public class DatabaseUserRepository implements UserRepository {
     }
 
     public DatabaseUserRepository() {
+    }
+
+    private static String mapColumnLabel(String fieldName) {
+        return fieldName;
     }
 
     private Connection getConnection() {
@@ -56,7 +71,7 @@ public class DatabaseUserRepository implements UserRepository {
             Connection connection = DriverManager.getConnection(databaseURL);
 
             return connection;
-        } catch ( SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -70,20 +85,19 @@ public class DatabaseUserRepository implements UserRepository {
 //            return true;
 //        },COMMON_EXCEPTION_HANDLER,user.getName(),user.getPassword(),user.getEmail(),user.getPhoneNumber());
 
-//        "('A','******','a@gmail.com','1') , "
 
-        String sql = "INSERT INTO users(name,password,email,phoneNumber) VALUES ("
-                + user.getName() + ","
-                + user.getPassword() + ","
-                + user.getEmail() + ","
-                + user.getPhoneNumber()  +
-                ")";
+//        try {
+//            Context context = new InitialContext();
+//            Context envCtx = (Context) context.lookup("java:comp/env");
+//            DataSource ds = (DataSource) envCtx.lookup("jdbc/UserPlatformDB");
+//            Connection connection = ds.getConnection();
+//            connection.createStatement();
+//        } catch (NamingException e) {
+//            e.printStackTrace();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
 
-
-        String sqlInsert = "INSERT INTO users(name,password,email,phoneNumber) VALUES ('%s','%s','%s','%s')";
-        sqlInsert = String.format(sqlInsert,user.getName(),user.getPassword(),user.getEmail(),user.getPhoneNumber());
-
-        System.out.println(sqlInsert);
 
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("INSERT INTO users(name,password,email,phoneNumber) VALUES ('");
@@ -91,9 +105,6 @@ public class DatabaseUserRepository implements UserRepository {
         stringBuffer.append(user.getPassword() + "','");
         stringBuffer.append(user.getEmail() + "','");
         stringBuffer.append(user.getPhoneNumber() + "')");
-
-
-
 
         String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
         Connection connection = null;
@@ -104,7 +115,6 @@ public class DatabaseUserRepository implements UserRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return true;
     }
 
@@ -197,27 +207,5 @@ public class DatabaseUserRepository implements UserRepository {
             exceptionHandler.accept(e);
         }
         return null;
-    }
-
-
-    private static String mapColumnLabel(String fieldName) {
-        return fieldName;
-    }
-
-    /**
-     * 数据类型与 ResultSet 方法名映射
-     */
-    static Map<Class, String> resultSetMethodMappings = new HashMap<>();
-
-    static Map<Class, String> preparedStatementMethodMappings = new HashMap<>();
-
-    static {
-        resultSetMethodMappings.put(Long.class, "getLong");
-        resultSetMethodMappings.put(String.class, "getString");
-
-        preparedStatementMethodMappings.put(Long.class, "setLong"); // long
-        preparedStatementMethodMappings.put(String.class, "setString"); //
-
-
     }
 }

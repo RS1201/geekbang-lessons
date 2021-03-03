@@ -9,7 +9,7 @@ import org.geektimes.projects.user.repository.DatabaseUserRepository;
  * @Email: xxx@gmail.com
  * @Desc:
  */
-public class DatabaseUserService implements UserService{
+public class DatabaseUserService implements UserService {
     @Override
     public boolean register(User user) {
         DatabaseUserRepository databaseUserRepository = new DatabaseUserRepository();
