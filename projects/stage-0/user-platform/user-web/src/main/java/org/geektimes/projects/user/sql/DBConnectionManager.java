@@ -2,9 +2,8 @@ package org.geektimes.projects.user.sql;
 
 import org.geektimes.projects.user.domain.User;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -13,10 +12,77 @@ import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class DBConnectionManager {
+public class DBConnectionManager { // JNDI Component
+
+    private final Logger logger = Logger.getLogger(DBConnectionManager.class.getName());
+
+    @Resource(name = "jdbc/UserPlatformDB")
+    private DataSource dataSource;
+
+    @Resource(name = "bean/EntityManager")
+    private EntityManager entityManager;
+
+//    public Connection getConnection() {
+//        ComponentContext context = ComponentContext.getInstance();
+//        // 依赖查找
+//        DataSource dataSource = context.getComponent("jdbc/UserPlatformDB");
+//        Connection connection = null;
+//        try {
+//            connection = dataSource.getConnection();
+//        } catch (SQLException e) {
+//            logger.log(Level.SEVERE, e.getMessage());
+//        }
+//        if (connection != null) {
+//            logger.log(Level.INFO, "获取 JNDI 数据库连接成功！");
+//        }
+//        return connection;
+//    }
+
+    public EntityManager getEntityManager() {
+        logger.info("当前 EntityManager 实现类：" + entityManager.getClass().getName());
+        return entityManager;
+    }
+
+    public Connection getConnection() {
+        // 依赖查找
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getMessage());
+        }
+        if (connection != null) {
+            logger.log(Level.INFO, "获取 JNDI 数据库连接成功！");
+        }
+        return connection;
+    }
+
+
+//    private Connection connection;
+//
+//    public void setConnection(Connection connection) {
+//        this.connection = connection;
+//    }
+//
+//    public Connection getConnection() {
+//        return this.connection;
+//    }
+
+    public void releaseConnection() {
+//        if (this.connection != null) {
+//            try {
+//                this.connection.close();
+//            } catch (SQLException e) {
+//                throw new RuntimeException(e.getCause());
+//            }
+//        }
+    }
 
     public static final String DROP_USERS_TABLE_DDL_SQL = "DROP TABLE users";
+
     public static final String CREATE_USERS_TABLE_DDL_SQL = "CREATE TABLE users(" +
             "id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), " +
             "name VARCHAR(16) NOT NULL, " +
@@ -24,23 +90,14 @@ public class DBConnectionManager {
             "email VARCHAR(64) NOT NULL, " +
             "phoneNumber VARCHAR(64) NOT NULL" +
             ")";
+
     public static final String INSERT_USER_DML_SQL = "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
             "('A','******','a@gmail.com','1') , " +
             "('B','******','b@gmail.com','2') , " +
             "('C','******','c@gmail.com','3') , " +
             "('D','******','d@gmail.com','4') , " +
             "('E','******','e@gmail.com','5')";
-    /**
-     * 数据类型与 ResultSet 方法名映射
-     */
-    static Map<Class, String> typeMethodMappings = new HashMap<>();
 
-    static {
-        typeMethodMappings.put(Long.class, "getLong");
-        typeMethodMappings.put(String.class, "getString");
-    }
-
-    private Connection connection;
 
     public static void main(String[] args) throws Exception {
 //        通过 ClassLoader 加载 java.sql.DriverManager -> static 模块 {}
@@ -50,19 +107,18 @@ public class DBConnectionManager {
 //        Driver driver = DriverManager.getDriver("jdbc:derby:/db/user-platform;create=true");
 //        Connection connection = driver.connect("jdbc:derby:/db/user-platform;create=true", new Properties());
 
-        String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
+        String databaseURL = "jdbc:derby:/db/user-platform;create=true";
         Connection connection = DriverManager.getConnection(databaseURL);
 
         Statement statement = connection.createStatement();
         // 删除 users 表
-//        System.out.println(statement.execute(DROP_USERS_TABLE_DDL_SQL)); // false
+        System.out.println(statement.execute(DROP_USERS_TABLE_DDL_SQL)); // false
         // 创建 users 表
-//        System.out.println(statement.execute(CREATE_USERS_TABLE_DDL_SQL)); // false
-//        System.out.println(statement.executeUpdate(INSERT_USER_DML_SQL));  // 5
+        System.out.println(statement.execute(CREATE_USERS_TABLE_DDL_SQL)); // false
+        System.out.println(statement.executeUpdate(INSERT_USER_DML_SQL));  // 5
 
         // 执行查询语句（DML）
-        ResultSet resultSet = statement.executeQuery(
-                "SELECT id,name,password,email,phoneNumber FROM users");
+        ResultSet resultSet = statement.executeQuery("SELECT id,name,password,email,phoneNumber FROM users");
 
         // BeanInfo
         BeanInfo userBeanInfo = Introspector.getBeanInfo(User.class, Object.class);
@@ -76,7 +132,10 @@ public class DBConnectionManager {
         // 写一个简单的 ORM 框架
         while (resultSet.next()) { // 如果存在并且游标滚动
             User user = new User();
+
             // ResultSetMetaData 元信息
+
+
             ResultSetMetaData metaData = resultSet.getMetaData();
             System.out.println("当前表的名称：" + metaData.getTableName(1));
             System.out.println("当前表的列个数：" + metaData.getColumnCount());
@@ -133,34 +192,14 @@ public class DBConnectionManager {
         return fieldName;
     }
 
-    public Connection getConnection() {
-        try {
-            if (connection != null) {
-                return connection;
-            }
-            Context ic = new InitialContext();
-            DataSource source = (DataSource) ic.lookup("java:comp/env/jdbc/UserPlatformDB");
-            connection = source.getConnection();
-        } catch (NamingException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    /**
+     * 数据类型与 ResultSet 方法名映射
+     */
+    static Map<Class, String> typeMethodMappings = new HashMap<>();
 
-        return this.connection;
+    static {
+        typeMethodMappings.put(Long.class, "getLong");
+        typeMethodMappings.put(String.class, "getString");
     }
 
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-
-    public void releaseConnection() {
-        if (this.connection != null) {
-            try {
-                this.connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e.getCause());
-            }
-        }
-    }
 }
