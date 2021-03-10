@@ -29,16 +29,14 @@
 			<label
 					for="name" class="sr-only">请输入用户名</label>
 			<input
-					type="password" id="name" class="form-control" name="name"
+					type="text" id="name" class="form-control" name="name"
 					placeholder="请输入用户名" required>
 
 			<label
 					for="phoneNum" class="sr-only">请输入手机号</label>
 			<input
-					type="password" id="phoneNum" class="form-control" name="phoneNum"
+					type="text" id="phoneNum" class="form-control" name="phoneNum"
 					placeholder="请输入手机号" required>
-
-
 
 			<label for="inputEmail" class="sr-only">请输出电子邮件</label>
 			<input

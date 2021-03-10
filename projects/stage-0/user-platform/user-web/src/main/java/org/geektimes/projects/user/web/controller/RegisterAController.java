@@ -2,8 +2,10 @@ package org.geektimes.projects.user.web.controller;
 
 import org.geektimes.projects.user.domain.User;
 import org.geektimes.projects.user.service.DatabaseUserService;
+import org.geektimes.projects.user.service.UserServiceImpl;
 import org.geektimes.web.mvc.controller.PageController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
@@ -12,6 +14,10 @@ import javax.ws.rs.Path;
 
 @Path("/register")
 public class RegisterAController implements PageController {
+
+
+    @Resource(name = "bean/UserService")
+    private UserServiceImpl userService;
 
 
     @GET
@@ -32,9 +38,10 @@ public class RegisterAController implements PageController {
         user.setEmail(inputEmail);
         user.setPhoneNumber(phoneNum);
 
-        DatabaseUserService databaseUserService = new DatabaseUserService();
-        boolean flag = databaseUserService.register(user);
+//        userService.register(user);
 
+        DatabaseUserService databaseUserService = new DatabaseUserService();
+        databaseUserService.register(user);
         return "success.jsp";
     }
 }

@@ -92,6 +92,11 @@
                         <artifactId>derby</artifactId>
                         <version>${derby.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.apache.tomcat</groupId>
+                        <artifactId>tomcat-el-api</artifactId>
+                        <version>${tomcat-el.version}</version>
+                    </dependency>
                 </dependencies>
                 <executions>
                     <execution>

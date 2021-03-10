@@ -1,9 +1,10 @@
 package org.geektimes.projects.user.domain;
 
+import org.geektimes.projects.user.anna.Mobile;
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -20,21 +21,26 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = AUTO)
-    @NotNull
     private Long id;
 
     @Column
     private String name;
 
     @Column
-    @Max(32)
-    @Min(6)
+    @Length(min = 6, message = "密码至少6位")
+    @Length(max = 32, message = "密码最多32位")
     private String password;
 
     @Column
+    @Email
     private String email;
 
     @Column
+//    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "must be a number or a letter ")
+//    @Pattern(regexp = "^\\d{11}$",flags = Pattern.Flag.CANON_EQ)
+//    @Pattern(regexp = "^(13[0-9]|14[5|7]|15[0-9]|18[0-9])\\d{8}$")
+//    @Pattern(regexp = "^\\d{11}$",flags = )
+    @Mobile
     private String phoneNumber;
 
     public Long getId() {

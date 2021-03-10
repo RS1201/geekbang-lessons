@@ -53,31 +53,28 @@ public class DatabaseUserRepository implements UserRepository {
         this.dbConnectionManager = ComponentContext.getInstance().getComponent("bean/DBConnectionManager");
     }
 
-    public DatabaseUserRepository() {
-    }
-
     private static String mapColumnLabel(String fieldName) {
         return fieldName;
     }
 
     private Connection getConnection() {
-        Context ctx = null;
-        try {
-//            ctx = new InitialContext();
-//            Context envCtx = (Context) ctx.lookup("java:comp/env");
-//            DataSource ds = (DataSource) envCtx.lookup("jdbc/UserPlatformDB");
-//            return ds.getConnection();
+//        Context ctx = null;
+//        try {
+////            ctx = new InitialContext();
+////            Context envCtx = (Context) ctx.lookup("java:comp/env");
+////            DataSource ds = (DataSource) envCtx.lookup("jdbc/UserPlatformDB");
+////            return ds.getConnection();
+//
+//            String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
+//            Connection connection = DriverManager.getConnection(databaseURL);
+//
+//            return connection;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+        return dbConnectionManager.getConnection();
 
-            String databaseURL = "jdbc:derby:/Users/romanticolor/tools/db-derby-10.14.2.0-bin/user-platform;create=true";
-            Connection connection = DriverManager.getConnection(databaseURL);
-
-            return connection;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-        return null;
+//        return null;
     }
 
     @Override
