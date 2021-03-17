@@ -31,7 +31,7 @@
         <hibernate.version>5.4.29.Final</hibernate.version>
         <hibernate.validator.version>6.1.7.Final</hibernate.validator.version>
         <tomcat-el.version>8.5.60</tomcat-el.version>
-
+        <jolokia.version>1.6.2</jolokia.version>
         <!-- MicroProfile 版本-->
         <microprofile-config-api.version>2.0</microprofile-config-api.version>
 
@@ -121,6 +121,12 @@
                 <groupId>org.eclipse.microprofile.config</groupId>
                 <artifactId>microprofile-config-api</artifactId>
                 <version>${microprofile-config-api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jolokia</groupId>
+                <artifactId>jolokia-core</artifactId>
+                <version>${jolokia.version}</version>
             </dependency>
 
         </dependencies>
